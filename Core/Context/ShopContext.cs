@@ -5,17 +5,24 @@ namespace Core.Context;
 
 public class ShopContext : DbContext
 {
-    public DbSet<User> Users;
-    public DbSet<Role> Roles;
-    public DbSet<Category> Categories;
-    public DbSet<Product> Products;
-    public DbSet<ProductStats> ProductStats;
-    public DbSet<ShoppingCart> ShoppingCarts;
-    public DbSet<Order> Orders;
+    public DbSet<User> Users { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Product> Products { get; set; }
+    public DbSet<ProductStats> ProductStats { get; set; }
+    public DbSet<ShoppingCart> ShoppingCarts { get; set; }
+    public DbSet<Order> Orders { get; set; }
     
     public ShopContext()
     { }
 
     public ShopContext(DbContextOptions<ShopContext> options) : base(options)
     { }
+
+    /* fluentApi here
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>().   
+    }
+    */
 }

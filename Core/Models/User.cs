@@ -7,13 +7,21 @@ public class User
     public IEnumerable<Role> Roles { get; set; }
     public string Login { get; set; }
     public string PasswordHash { get; set; }
-    
     public ShoppingCart ShoppingCart { get; set; }
     public IEnumerable<Order> Orders { get; set; }
+    public bool IsDeleted { get; set; }
+
+    public User()
+    {
+        IsDeleted = false;
+        ShoppingCart = new ShoppingCart();
+    }
 
     public User(string name, string login)
     {
         Name = name;
         Login = login;
+        IsDeleted = false;
+        ShoppingCart = new ShoppingCart();
     }
 }

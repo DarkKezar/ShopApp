@@ -14,6 +14,8 @@ public class Order
     public IEnumerable<Product> Products { get; set; }
     public StatusType Status { get; set; }
 
+    
+    public Order(){}
     public Order(User user, IEnumerable<Product> products)
     {
         User = user;
