@@ -4,7 +4,7 @@ namespace Core.Repositories.RoleRepository;
 
 public interface IRoleRepository
 {
-    public Task<IEnumerable<Role>> GetAllRolesAsync(int count, int page);
+    public Task<IQueryable<Role>> GetAllRolesAsync();
     public Task<Role> GetRoleAsync(Guid id);
     public Task<Role> CreateRoleAsync(Role role);
     public Task<Role> UpdateRoleAsync(Role role);

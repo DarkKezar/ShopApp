@@ -21,9 +21,9 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<User>> GetAllUsersAsync(int count, int page)
+    public async Task<IQueryable<User>> GetAllUsersAsync()
     {
-        return _context.Users.Skip(count * page).Take(count);
+        return _context.Users;
     }
 
     public async Task<User> GetUserAsync(Guid id)
@@ -43,6 +43,12 @@ public class UserRepository : IUserRepository
         return user;
     }
 
+    public async Task<User> UpdatePasswordAsync(User user, string password)
+    {
+        user.PasswordHash = PasswordHashGenerator(password);
+        return await this.UpdateUserAsync(user);
+    }
+
     public async Task<ShoppingCart> UpdateShoppingCartAsync(ShoppingCart shoppingCart)
     {
         _context.ShoppingCarts.Update(shoppingCart);
@@ -57,7 +63,7 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> AuthorizateUserAsync(string login, string password)
+    public async Task<User> AuthorizeUserAsync(string login, string password)
     {
         /*
          * Here I only check login and password, that's why I return boolean
@@ -65,7 +71,8 @@ public class UserRepository : IUserRepository
          */
         
         User user = await _context.Users.SingleOrDefaultAsync(u => u.Login.Equals(login));
-        if (user.IsDeleted) return false;
-        else return user.PasswordHash.Equals(PasswordHashGenerator(password));
+        if (user.IsDeleted) return null;
+        else if (user.PasswordHash.Equals(PasswordHashGenerator(password))) return user;
+        else return null;
     }
 }
