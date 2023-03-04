@@ -10,6 +10,7 @@ using Infrastructure.DTO.AccountTO;
 using Infrastructure.Validators.AccountValidators;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 
 
 namespace Infrastructure.Services.AccountService;
@@ -31,7 +32,14 @@ public class AccountService : IAccountService
         if (result.IsValid)
         {
             User user = new User(model.Name, model.Login);
-            user = await _repository.CreateUserAsync(user, model.Password);
+            try
+            {
+                user = await _repository.CreateUserAsync(user, model.Password);
+            }
+            catch (NpgsqlException e)
+            {
+                return new ObjectResult(e);
+            }
             return new ObjectResult(user);
         }
         else

@@ -9,5 +9,6 @@ public interface IProductService
     public Task<IActionResult> UpdateProductAsync(UpdateProductTO model);
     public Task<IActionResult> DeleteProductAsync(DeleteProductTO model);
     public Task<IActionResult> GetAllProductsAsync(int count, int page);
+    public Task<IActionResult> GetAllProductsAsync(List<Guid> categoriesId, int count, int page);
     public Task<IActionResult> GetProductAsync(Guid id);
 }
