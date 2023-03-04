@@ -20,7 +20,8 @@ public class RoleRepository : IRoleRepository
 
     public async Task<Role> GetRoleAsync(Guid id)
     {
-        return await _context.Roles.SingleOrDefaultAsync(r => r.Id == id);
+        return await _context.Roles.Include(r => r.Users)
+            .SingleOrDefaultAsync(r => r.Id == id);
     }
 
     public async Task<Role> CreateRoleAsync(Role role)

@@ -20,7 +20,8 @@ public class ProductRepository : IProductRepository
 
     public async Task<Product> GeProductAsync(Guid id)
     {
-        return await _context.Products.SingleOrDefaultAsync(p => p.Id == id);
+        return await _context.Products.Include(p => p.ProductStats)
+            .SingleOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<Product> CreatProductAsync(Product product)
