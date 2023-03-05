@@ -26,16 +26,14 @@ public class UserRepository : IUserRepository
         return _context.Users;
     }
 
-    public async Task<IQueryable<User>> GetUserAsync(Guid id)
+    public async Task<User> GetUserAsync(Guid id)
     {
-        return _context.Users.Where(u => u.Id == id);
+        return await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<User> CreateUserAsync(User user, string password)
     {
-        user.PasswordHash = PasswordHashGenerator(password);
-        await _context.Users.AddAsync(user);
-        return user;
+        throw new NotImplementedException();
     }
 
     public async Task<User> UpdateUserAsync(User user)
@@ -67,8 +65,13 @@ public class UserRepository : IUserRepository
 
     public async Task<User> AuthorizeUserAsync(string login, string password)
     {
-        User? user = await _context.Users.SingleOrDefaultAsync(u => u.Login.Equals(login));
-        if (user == null  || user.IsDeleted) return null;
+        /*
+         * Here I only check login and password, that's why I return boolean
+         * JWT I will generate in IUserService (or IAccountService)
+         */
+        
+        User user = await _context.Users.SingleOrDefaultAsync(u => u.Login.Equals(login));
+        if (user.IsDeleted) return null;
         else if (user.PasswordHash.Equals(PasswordHashGenerator(password))) return user;
         else return null;
     }

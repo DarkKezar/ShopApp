@@ -18,12 +18,9 @@ public class ProductRepository : IProductRepository
         return _context.Products;
     }
 
-    public async Task<Product> GetProductAsync(Guid id)
+    public async Task<Product> GeProductAsync(Guid id)
     {
-        return await _context.Products
-            .Include(p => p.ProductStats)
-            .Include(p => p.Categories)
-            .SingleOrDefaultAsync(p => p.Id == id);
+        return await _context.Products.SingleOrDefaultAsync(p => p.Id == id);
     }
 
     public async Task<Product> CreatProductAsync(Product product)
@@ -49,7 +46,7 @@ public class ProductRepository : IProductRepository
 
     public async Task DeleteProductAsync(Guid id)
     {
-        Product product = await this.GetProductAsync(id);
+        Product product = await this.GeProductAsync(id);
         _context.ProductStats.Remove(product.ProductStats);
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();
