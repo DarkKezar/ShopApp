@@ -134,29 +134,40 @@ public class ProductService : IProductService
         try
         {
             List<Category> categories = (await _categoryRepository.GetAllCategoriesAsync())
-                .Where(c => categoriesId.Contains(c.Id)).ToList();
-            List<Product> products = (await _repository.GetAllProductsAsync())
-                .Where(p => categories.Intersect(p.Categories).Count() > 0)
-                .Include(p => p.Categories)
-                .Pagination(count, page).ToList();
-            return new OkObjectResult(products);
-            /*
-            return new OkObjectResult(new GetProductTO()
-                { Products = products });
-                */
+                .Where(c => categoriesId.Contains(c.Id))
+                .Include(c => c.Products)
+                .ThenInclude(p => p.ProductStats)
+                .ToList();
+            if (categories.Count == 0) return new NotFoundResult();
+
+            List<Product> products = new List<Product>();
+            foreach (var category in categories)
+            {
+                foreach (var product in category.Products)
+                {
+                    if (!products.Contains(product))
+                    {
+                        products.Add(product);
+                    }
+                }
+            }
+
+            products = products.Skip(page * count).Take(count).ToList();
+            if (products.Count != 0) return new OkObjectResult(products);
+            else return new NotFoundResult();
         }
         catch (NpgsqlException e)
         {
             return new ObjectResult(e);
         }
     }
-
     public async Task<IActionResult> GetProductAsync(Guid id)
     {
         try
         {
             Product product = await _repository.GetProductAsync(id);
-            return new OkObjectResult(product);
+            if (product != null) return new OkObjectResult(product);
+            else return new NotFoundResult();
         }
         catch (NpgsqlException e)
         {

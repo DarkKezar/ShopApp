@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Core.Context;
 using Microsoft.EntityFrameworkCore;
 using Web.Extensions;
@@ -11,6 +12,12 @@ builder.DI();
 // Add services to the container.
 
 builder.Services.AddControllers();
+//!!
+builder.Services.AddControllers().AddJsonOptions(options => 
+{ 
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.WriteIndented = true;
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.AddSwaggerBearer();

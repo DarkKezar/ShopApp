@@ -16,16 +16,19 @@ public class ProductsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync(int count = 10, int page = 0)
+    public async Task<IActionResult> GetAllAsync(int count = 10, int page = 1)
     {
-        return await _service.GetAllProductsAsync(count, page);
+        if (count <= 0 || page < 1) return new BadRequestResult();
+        else return await _service.GetAllProductsAsync(count, page);
     }
 
     [HttpGet]
     [Route("ByCategories")]
-    public async Task<IActionResult> GetAllByCategoriesAsync(List<Guid> categoriesId, int count = 10, int page = 0)
+    public async Task<IActionResult> GetAllByCategoriesAsync([FromQuery]List<Guid> categoriesId, 
+        int count = 10, int page = 1)
     {
-        return await _service.GetAllProductsAsync(categoriesId, count, page);
+        if (count <= 0 || page < 1) return new BadRequestResult();
+        else return await _service.GetAllProductsAsync(categoriesId, count, page);
     }
 
     [HttpGet]
