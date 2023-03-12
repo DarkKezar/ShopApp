@@ -1,12 +1,12 @@
+using Core.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Infrastructure.Services.ShopService;
 
 public interface IShopService
 {
-    public Task<IActionResult> AddToShoppingCartAsync();
-    public Task<IActionResult> RemoveFromShoppingCartAsync();
-    public Task<IActionResult> ClearShoppingCart();
-    public Task<IActionResult> CreateOrderAsync();
-    public Task<IActionResult> DeleteOrderAsync();
+    public Task<IActionResult> GetOrderAsync(Guid id);
+    public Task<IActionResult> GetOrdersAsync(int count, int page);
+    public Task<IActionResult> CreateOrderAsync(Guid userId);
+    public Task<IActionResult> UpdateOrderAsync(Guid orderId, Order.StatusType status);
 }

@@ -28,12 +28,19 @@ public class UserRepository : IUserRepository
 
     public async Task<User> GetUserAsync(Guid id)
     {
-        return await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
+        return await _context.Users
+            .Include(u => u.Roles)
+            .Include(u => u.Orders)
+            .Include(u => u.ShoppingCart)
+            .SingleOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<User> CreateUserAsync(User user, string password)
     {
-        throw new NotImplementedException();
+        user.PasswordHash = PasswordHashGenerator(password);
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+        return user;
     }
 
     public async Task<User> UpdateUserAsync(User user)

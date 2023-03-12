@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using AutoMapper;
 using Core.Models;
+using Core.Repositories.ProductRepository;
 using Core.Repositories.UserRepository;
 using FluentValidation.Results;
 using Infrastructure.DTO;
@@ -18,11 +19,13 @@ namespace Infrastructure.Services.AccountService;
 public class AccountService : IAccountService
 {
     private readonly IUserRepository _repository;
+    private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
 
-    public AccountService(IUserRepository repository, IMapper mapper)
+    public AccountService(IUserRepository repository, IProductRepository productRepository, IMapper mapper)
     {
         _repository = repository;
+        _productRepository = productRepository;
         _mapper = mapper;
     }
 
@@ -91,6 +94,24 @@ public class AccountService : IAccountService
         else
         {
             return new ObjectResult(result.Errors);
+        }
+    }
+
+    public async Task<IActionResult> AddToCartAsync(Guid userId, List<Guid> productsId)
+    {
+        try
+        {
+            User user = await _repository.GetUserAsync(userId);
+            List<Product> products = (await _productRepository.GetAllProductsAsync())
+                .Where(p => productsId.Contains(p.Id)).ToList();
+            user.ShoppingCart.Products.AddRange(products);
+            user = await _repository.UpdateUserAsync(user);
+
+            return new OkObjectResult(user);
+        }
+        catch (NpgsqlException e)
+        {
+            return new ObjectResult(e.Message);
         }
     }
 }

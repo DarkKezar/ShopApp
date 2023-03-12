@@ -16,7 +16,7 @@ public class ProductsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync(int count = 10, int page = 1)
+    public async Task<IActionResult> GetProductsAsync(int count = 10, int page = 1)
     {
         if (count <= 0 || page < 1) return new BadRequestResult();
         else return await _service.GetAllProductsAsync(count, page);
@@ -24,7 +24,7 @@ public class ProductsController : Controller
 
     [HttpGet]
     [Route("ByCategories")]
-    public async Task<IActionResult> GetAllByCategoriesAsync([FromQuery]List<Guid> categoriesId, 
+    public async Task<IActionResult> GetProductsByCategoriesAsync([FromQuery]List<Guid> categoriesId, 
         int count = 10, int page = 1)
     {
         if (count <= 0 || page < 1) return new BadRequestResult();
@@ -33,25 +33,25 @@ public class ProductsController : Controller
 
     [HttpGet]
     [Route("Product")]
-    public async Task<IActionResult> GetAsync(Guid id)
+    public async Task<IActionResult> GetProductAsync(Guid id)
     {
         return await _service.GetProductAsync(id);
     }
     
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(CreateProductTO model)
+    public async Task<IActionResult> CreateProductAsync(CreateProductTO model)
     {
         return await _service.CreateProductAsync(model);
     }
 
     [HttpPatch]
-    public async Task<IActionResult> UpdateAsync(UpdateProductTO model)
+    public async Task<IActionResult> UpdateProductAsync(UpdateProductTO model)
     {
         return await _service.UpdateProductAsync(model);
     }
 
     [HttpDelete]
-    public async Task<IActionResult> DeleteAsync(DeleteProductTO id)
+    public async Task<IActionResult> DeleteProductAsync(DeleteProductTO id)
     {
         return await _service.DeleteProductAsync(id);
     }

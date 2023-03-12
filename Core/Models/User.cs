@@ -16,6 +16,8 @@ public class User
     public User()
     {
         IsDeleted = false;
+        Roles = new List<Role>();
+        Orders = new List<Order>();
         ShoppingCart = new ShoppingCart();
     }
 
@@ -24,6 +26,8 @@ public class User
         Name = name;
         Login = login;
         IsDeleted = false;
+        Roles = new List<Role>();
+        Orders = new List<Order>();
         ShoppingCart = new ShoppingCart();
     }
 }

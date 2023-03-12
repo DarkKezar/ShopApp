@@ -1,5 +1,5 @@
+using System.Data.Entity;
 using Core.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 
@@ -23,7 +23,10 @@ public class ShopContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-
+        Role adminRole = new Role { Id = new Guid("0cd70aac-7aa1-4f13-98de-3717e22dca1e"), Name = "Admin" },
+            customerRole = new Role{Id = new Guid("92fa11b5-5cff-4cfd-ae99-fe975aaf2452"), Name = "Customer"};
+        
+        
         modelBuilder.Entity<User>().HasKey(u => u.Id);
         modelBuilder.Entity<User>().HasAlternateKey(u => u.Login);
         modelBuilder.Entity<User>().Property(u => u.Login).IsRequired();
@@ -41,6 +44,7 @@ public class ShopContext : DbContext
 
         modelBuilder.Entity<Role>().HasKey(r => r.Id);
         modelBuilder.Entity<Role>().Property(r => r.Name).IsRequired();
+        modelBuilder.Entity<Role>().HasData(adminRole, customerRole);
 
         modelBuilder.Entity<Category>().HasKey(c => c.Id);
         modelBuilder.Entity<Category>().Property(c => c.Name).IsRequired();

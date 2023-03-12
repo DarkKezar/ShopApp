@@ -61,10 +61,17 @@ public class CategoryService : ICategoryService
         return new OkResult();
     }
 
+    public async Task<IActionResult> GetAllCategoryAsync()
+    {
+        List<Category> categories = (await _repository.GetAllCategoriesAsync()).ToList();
+        return new OkObjectResult(categories);
+    }
+    
     public async Task<IActionResult> GetAllCategoryAsync(int count, int page)
     {
         List<Category> categories = (await _repository.GetAllCategoriesAsync()).Pagination(count, page).ToList();
-        return new OkObjectResult(categories.ToList());
+        if (categories.Count == 0) return new NotFoundResult();
+        return new OkObjectResult(categories);
     }
 
     public async Task<IActionResult> GetCategoryAsync(Guid id)

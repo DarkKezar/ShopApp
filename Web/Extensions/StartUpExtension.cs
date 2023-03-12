@@ -1,22 +1,34 @@
 using Core.Repositories.CategoryRepository;
+using Core.Repositories.OrderRepository;
 using Core.Repositories.ProductRepository;
+using Core.Repositories.RoleRepository;
+using Core.Repositories.UserRepository;
 using Infrastructure.AutoMappers;
 using Infrastructure.Services.AccountService;
+using Infrastructure.Services.AdminService;
 using Infrastructure.Services.CategoryService;
 using Infrastructure.Services.ProductService;
+using Infrastructure.Services.ShopService;
 using Microsoft.OpenApi.Models;
 
 namespace Web.Extensions;
 
 public static class StartUpExtension
 {
-    public static void DI(this WebApplicationBuilder builder)
+    public static void DependencyInjection(this WebApplicationBuilder builder)
     {
         builder.Services.AddAutoMapper(typeof(ProductAutoMapper));
         
+        builder.Services.AddTransient<IShopService, ShopService>();
+        builder.Services.AddTransient<IAdminService, AdminService>();
+        builder.Services.AddTransient<IAccountService, AccountService>();
         builder.Services.AddTransient<IProductService, ProductService>();
         builder.Services.AddTransient<ICategoryService, CategoryService>();
 
+        
+        builder.Services.AddTransient<IRoleRepository, RoleRepository>();
+        builder.Services.AddTransient<IUserRepository, UserRepository>();
+        builder.Services.AddTransient<IOrderRepository, OrderRepository>();
         builder.Services.AddTransient<IProductRepository, ProductRepository>();
         builder.Services.AddTransient<ICategoryRepository, CategoryRepository>();
     }
