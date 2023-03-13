@@ -22,7 +22,7 @@ public class ShopController : Controller
     }
 
     [HttpGet]
-    [Route("Order")]
+    [Route("Order/{id}")]
     public async Task<IActionResult> GetOrderAsync(Guid id)
     {
         return await _service.GetOrderAsync(id);

@@ -32,7 +32,7 @@ public class ProductsController : Controller
     }
 
     [HttpGet]
-    [Route("Product")]
+    [Route("Product/{id}")]
     public async Task<IActionResult> GetProductAsync(Guid id)
     {
         return await _service.GetProductAsync(id);
