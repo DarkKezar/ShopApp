@@ -1,11 +1,14 @@
 using Core.Models;
 using Infrastructure.Services.ShopService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Extensions;
 
 namespace Web.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class ShopController : Controller
 {
     private readonly IShopService _service;
@@ -15,12 +18,6 @@ public class ShopController : Controller
         _service = service;
     }
     
-    private Guid GetIdOfCurrentUser() //наверное надо куда-то вынести
-    {
-        return Guid.Parse(HttpContext.User.Claims.Where(c => c.Type == "Id")
-            .Select(c => c.Value).SingleOrDefault() ?? string.Empty);
-    }
-
     [HttpGet]
     [Route("Order/{id}")]
     public async Task<IActionResult> GetOrderAsync(Guid id)
@@ -37,10 +34,11 @@ public class ShopController : Controller
     [HttpPost]
     public async Task<IActionResult> CreateOrderAsync()
     {
-        return await _service.CreateOrderAsync(GetIdOfCurrentUser());
+        return await _service.CreateOrderAsync(this.GetCurrentUserId());
     }
 
     [HttpPatch]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateOrderAsync(Guid id, Order.StatusType status)
     {
         return await _service.UpdateOrderAsync(id, status);

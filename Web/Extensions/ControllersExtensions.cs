@@ -5,7 +5,7 @@ namespace Web.Extensions;
 
 public static class ControllerExtensions
 {
-    public static Guid GetUserId(this Controller controller)
+    public static Guid GetCurrentUserId(this Controller controller)
     { 
         return Guid.Parse(controller.HttpContext.User.Claims.Where(c => c.Type == ClaimTypes.Sid)
             .Select(c => c.Value).SingleOrDefault() ?? string.Empty);

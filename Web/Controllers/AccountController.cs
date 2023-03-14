@@ -17,41 +17,17 @@ public class AccountController : Controller
 {
     private readonly IAccountService _service;
     private readonly IConfiguration _configuration;
-    private readonly ShopContext _context;
-
-    private Guid GetIdOfCurrentUser()
-    {
-        return Guid.Parse(HttpContext.User.Claims.Where(c => c.Type == "Id")
-            .Select(c => c.Value).SingleOrDefault() ?? string.Empty);
-    }
     
-    public AccountController(IAccountService service, IConfiguration configuration, ShopContext context)
+    public AccountController(IAccountService service, IConfiguration configuration)
     {
         _service = service;
         _configuration = configuration;
-        _context = context;
     }
-
-    [HttpGet]
-    [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> Hueta()
-    {
-        string id = this.GetUserId().ToString();
-        List<string> role = this.GetCurrentUserRoles();
-        role.Add(id);
-        return new OkObjectResult(role);
-    }
-
-    [HttpGet]
-    [Route("Users")]
-    public async Task<IActionResult> A()
-    {
-        List<User> users = _context.Users.Include(u => u.Roles).ToList();
-        return new OkObjectResult(users);
-    }
+    
     
     [HttpPost]
     [Route("Sign-Up")]
+    [AllowAnonymous]
     public async Task<IActionResult> RegisterUserAsync(CreateAccountTO model)
     {
         return await _service.RegisterUserAsync(model);
@@ -71,8 +47,9 @@ public class AccountController : Controller
 
     [HttpPatch]
     [Route("Add-To-Cart")]
+    [Authorize]
     public async Task<IActionResult> AddToCartAsync(List<Guid> productsId)
     {
-        return await _service.AddToCartAsync(GetIdOfCurrentUser(), productsId);
+        return await _service.AddToCartAsync(this.GetCurrentUserId(), productsId);
     }
 }

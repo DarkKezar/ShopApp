@@ -1,10 +1,12 @@
 using Infrastructure.Services.AdminService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize(Roles = "Admin")]
 public class RolesController : Controller
 {
     private readonly IAdminService _service;

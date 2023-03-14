@@ -1,5 +1,6 @@
 using Infrastructure.DTO.ProductTO;
 using Infrastructure.Services.ProductService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers;
@@ -39,18 +40,21 @@ public class ProductsController : Controller
     }
     
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateProductAsync(CreateProductTO model)
     {
         return await _service.CreateProductAsync(model);
     }
 
     [HttpPatch]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateProductAsync(UpdateProductTO model)
     {
         return await _service.UpdateProductAsync(model);
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteProductAsync(DeleteProductTO id)
     {
         return await _service.DeleteProductAsync(id);

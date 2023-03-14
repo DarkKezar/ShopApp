@@ -1,4 +1,5 @@
 using Infrastructure.Services.CategoryService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers;
@@ -21,18 +22,21 @@ public class CategoriesController : Controller
     }
     
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateCategoryAsync(string name)
     {
         return await _service.CreateCategoryAsync(name);
     }
 
     [HttpPatch]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateCategoryAsync(Guid id, string name)
     {
         return await _service.UpdateCategoryAsync(id, name);
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteCategoryAsync(Guid id)
     {
         return await _service.DeleteCategoryAsync(id);
