@@ -59,32 +59,20 @@ public class AccountService : IAccountService
             User user = await _repository.AuthorizeUserAsync(model.Login, model.Password);
             if (user != null)
             {
-                string issuer = config.issuer;
-                string audience = config.audience;
-                byte[] key = config.key;
-                string ID = user.Id.ToString();
+                List<Claim> claims = new List<Claim>() { new Claim(ClaimTypes.Sid, user.Id.ToString()) };
+                claims.AddRange(user.Roles.Select(r => new Claim(ClaimTypes.Role, r.Name)));
                 
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(new[]
-                    {
-                        new Claim("Id", ID),
-                        new Claim("Login", user.Login),
-                        new Claim(JwtRegisteredClaimNames.Jti,  ID),
-                    }),
-                    Expires = DateTime.UtcNow.AddMinutes(60),
-                    Issuer = issuer,
-                    Audience = audience,
-                    SigningCredentials = new SigningCredentials
-                    (new SymmetricSecurityKey(key),
-                        SecurityAlgorithms.HmacSha512Signature)
-                };
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                var jwtToken = tokenHandler.WriteToken(token);
-                var stringToken = tokenHandler.WriteToken(token);
+                JwtSecurityToken jwtSecurityToken = new JwtSecurityToken(
+                    issuer: config.issuer,
+                    audience: config.audience,
+                    notBefore: DateTime.UtcNow,
+                    claims: claims,
+                    expires: DateTime.UtcNow.Add(TimeSpan.FromHours(1)),
+                    signingCredentials: new SigningCredentials(
+                        new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config.key)), 
+                        SecurityAlgorithms.HmacSha256));
                 
-                return new ObjectResult(stringToken);
+                return new OkObjectResult(new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken));
             }
             else
             {
@@ -93,7 +81,7 @@ public class AccountService : IAccountService
         }
         else
         {
-            return new ObjectResult(result.Errors);
+            return new BadRequestObjectResult(result.Errors);
         }
     }
 

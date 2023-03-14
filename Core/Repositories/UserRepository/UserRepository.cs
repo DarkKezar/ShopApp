@@ -77,7 +77,8 @@ public class UserRepository : IUserRepository
          * JWT I will generate in IUserService (or IAccountService)
          */
         
-        User user = await _context.Users.SingleOrDefaultAsync(u => u.Login.Equals(login));
+        User user = await _context.Users.Include(u => u.Roles)
+            .SingleOrDefaultAsync(u => u.Login.Equals(login));
         if (user.IsDeleted) return null;
         else if (user.PasswordHash.Equals(PasswordHashGenerator(password))) return user;
         else return null;
