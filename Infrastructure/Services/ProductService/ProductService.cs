@@ -133,11 +133,11 @@ public class ProductService : IProductService
     {
         try
         {
-            List<Category> categories = (await _categoryRepository.GetAllCategoriesAsync())
+            List<Category> categories = await (await _categoryRepository.GetAllCategoriesAsync())
                 .Where(c => categoriesId.Contains(c.Id))
                 .Include(c => c.Products)
                 .ThenInclude(p => p.ProductStats)
-                .ToList();
+                .ToListAsync();
             if (categories.Count == 0) return new NotFoundResult();
 
             List<Product> products = new List<Product>();

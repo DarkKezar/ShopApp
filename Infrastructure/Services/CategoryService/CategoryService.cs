@@ -1,3 +1,4 @@
+using System.Data.Entity;
 using AutoMapper;
 using Core.Models;
 using Core.Repositories.CategoryRepository;
@@ -69,7 +70,8 @@ public class CategoryService : ICategoryService
     
     public async Task<IActionResult> GetAllCategoryAsync(int count, int page)
     {
-        List<Category> categories = (await _repository.GetAllCategoriesAsync()).Pagination(count, page).ToList();
+        List<Category> categories = await (await _repository.GetAllCategoriesAsync())
+            .Pagination(count, page).ToListAsync();
         if (categories.Count == 0) return new NotFoundResult();
         return new OkObjectResult(categories);
     }

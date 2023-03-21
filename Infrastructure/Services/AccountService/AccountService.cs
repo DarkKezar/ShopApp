@@ -4,6 +4,7 @@ using System.Text;
 using AutoMapper;
 using Core.Models;
 using Core.Repositories.ProductRepository;
+using Core.Repositories.RoleRepository;
 using Core.Repositories.UserRepository;
 using FluentValidation.Results;
 using Infrastructure.DTO;
@@ -20,12 +21,14 @@ public class AccountService : IAccountService
 {
     private readonly IUserRepository _repository;
     private readonly IProductRepository _productRepository;
+    private readonly IRoleRepository _roleRepository;
     private readonly IMapper _mapper;
 
-    public AccountService(IUserRepository repository, IProductRepository productRepository, IMapper mapper)
+    public AccountService(IUserRepository repository, IProductRepository productRepository, IRoleRepository roleRepository, IMapper mapper)
     {
         _repository = repository;
         _productRepository = productRepository;
+        _roleRepository = roleRepository;
         _mapper = mapper;
     }
 
@@ -35,6 +38,7 @@ public class AccountService : IAccountService
         if (result.IsValid)
         {
             User user = new User(model.Name, model.Login);
+            user.Roles.Add(await _roleRepository.GetRoleAsync(new Guid("92fa11b5-5cff-4cfd-ae99-fe975aaf2452")));
             try
             {
                 user = await _repository.CreateUserAsync(user, model.Password);

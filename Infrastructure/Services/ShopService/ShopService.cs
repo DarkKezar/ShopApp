@@ -4,6 +4,7 @@ using Core.Repositories.ProductRepository;
 using Core.Repositories.UserRepository;
 using Infrastructure.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
 namespace Infrastructure.Services.ShopService;
@@ -38,7 +39,8 @@ public class ShopService : IShopService
     {
         try
         {
-            return new OkObjectResult((await _repository.GetAllOrdersAsync()).Pagination(count, page).ToList());
+            return new OkObjectResult(await (await _repository.GetAllOrdersAsync()).
+                Pagination(count, page).ToListAsync());
         }
         catch (Exception e)
         {

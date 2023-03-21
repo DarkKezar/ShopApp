@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("product")]
 public class ProductsController : Controller
 {
     private readonly IProductService _service;
@@ -17,6 +17,7 @@ public class ProductsController : Controller
     }
 
     [HttpGet]
+    [Route("/products")]
     public async Task<IActionResult> GetProductsAsync(int count = 10, int page = 1)
     {
         if (count <= 0 || page < 1) return new BadRequestResult();
@@ -24,7 +25,7 @@ public class ProductsController : Controller
     }
 
     [HttpGet]
-    [Route("ByCategories")]
+    [Route("/products/{categoriesId}")]
     public async Task<IActionResult> GetProductsByCategoriesAsync([FromQuery]List<Guid> categoriesId, 
         int count = 10, int page = 1)
     {
@@ -33,9 +34,10 @@ public class ProductsController : Controller
     }
 
     [HttpGet]
-    [Route("Product/{id}")]
+    [Route("{id}")]
     public async Task<IActionResult> GetProductAsync(Guid id)
     {
+        if (id == default(Guid)) return new BadRequestResult();
         return await _service.GetProductAsync(id);
     }
     
@@ -43,20 +45,26 @@ public class ProductsController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateProductAsync(CreateProductTO model)
     {
+        if (model == null) return new BadRequestResult();
         return await _service.CreateProductAsync(model);
     }
 
     [HttpPatch]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateProductAsync(UpdateProductTO model)
+    [Route("{id}")]
+    public async Task<IActionResult> UpdateProductAsync(Guid Id, UpdateProductTO model)
     {
+        if (Id == default(Guid)) return new BadRequestResult();
+        model.Id = Id;
         return await _service.UpdateProductAsync(model);
     }
 
     [HttpDelete]
     [Authorize(Roles = "Admin")]
+    [Route("{id}")]
     public async Task<IActionResult> DeleteProductAsync(DeleteProductTO id)
     {
+        if (id.Id == default(Guid)) return new BadRequestResult();
         return await _service.DeleteProductAsync(id);
     }
     

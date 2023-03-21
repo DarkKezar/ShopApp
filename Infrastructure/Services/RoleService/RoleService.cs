@@ -4,9 +4,9 @@ using Core.Repositories.UserRepository;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 
-namespace Infrastructure.Services.AdminService;
+namespace Infrastructure.Services.RoleService;
 
-public class AdminService : IAdminService
+public class AdminService : IRoleService
 {
     private readonly IRoleRepository _repository;
     private readonly IUserRepository _userRepository;

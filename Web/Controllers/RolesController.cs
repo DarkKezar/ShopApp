@@ -1,17 +1,17 @@
-using Infrastructure.Services.AdminService;
+using Infrastructure.Services.RoleService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("role")]
 [Authorize(Roles = "Admin")]
 public class RolesController : Controller
 {
-    private readonly IAdminService _service;
+    private readonly IRoleService _service;
 
-    public RolesController(IAdminService service)
+    public RolesController(IRoleService service)
     {
         _service = service;
     }
@@ -25,19 +25,15 @@ public class RolesController : Controller
     [HttpPatch]
     public async Task<IActionResult> UpdateRoleAsync(Guid id, string name)
     {
+        if (id == default(Guid)) return new BadRequestResult();
         return await _service.UpdateRoleAsync(id, name);
     }
 
     [HttpDelete]
     public async Task<IActionResult> DeleteRoleAsync(Guid id)
     {
+        if (id == default(Guid)) return new BadRequestResult();
         return await _service.DeleteRoleAsync(id);
     }
-
-    [HttpPost]
-    [Route("Add-User")]
-    public async Task<IActionResult> AddUserToRoleAsync(Guid userId, Guid roleId)
-    {
-        return await _service.AddUserToRoleAsync(userId, roleId);
-    }
+    
 }

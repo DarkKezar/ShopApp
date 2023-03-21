@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Infrastructure.Services.AdminService;
+namespace Infrastructure.Services.RoleService;
 
-public interface IAdminService
+public interface IRoleService
 {
     public Task<IActionResult> CreateRoleAsync(string name);
     public Task<IActionResult> UpdateRoleAsync(Guid id, string name);

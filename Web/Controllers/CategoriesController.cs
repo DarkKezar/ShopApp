@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("category")]
 public class CategoriesController : Controller
 {
     private readonly ICategoryService _service;
@@ -16,6 +16,7 @@ public class CategoriesController : Controller
     }
 
     [HttpGet]
+    [Route("/categories")]
     public async Task<IActionResult> GetCategoriesAsync()
     {
         return await _service.GetAllCategoryAsync();
@@ -25,6 +26,7 @@ public class CategoriesController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateCategoryAsync(string name)
     {
+        if (name == null) return new BadRequestResult();
         return await _service.CreateCategoryAsync(name);
     }
 
@@ -32,6 +34,7 @@ public class CategoriesController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateCategoryAsync(Guid id, string name)
     {
+        if (id == default(Guid)) return new BadRequestResult();
         return await _service.UpdateCategoryAsync(id, name);
     }
 
@@ -39,6 +42,7 @@ public class CategoriesController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteCategoryAsync(Guid id)
     {
+        if (id == default(Guid)) return new BadRequestResult();
         return await _service.DeleteCategoryAsync(id);
     }
 }

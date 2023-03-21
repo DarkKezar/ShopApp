@@ -7,7 +7,7 @@ using Web.Extensions;
 namespace Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("orders")]
 [Authorize]
 public class ShopController : Controller
 {
@@ -19,14 +19,15 @@ public class ShopController : Controller
     }
     
     [HttpGet]
-    [Route("Order/{id}")]
+    [Route("order/{id}")]
     public async Task<IActionResult> GetOrderAsync(Guid id)
     {
+        if (id == default(Guid)) return new BadRequestResult();
         return await _service.GetOrderAsync(id);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetOrdersAsync(int count, int page)
+    public async Task<IActionResult> GetOrdersAsync(int count = 10, int page = 1)
     {
         return await _service.GetOrdersAsync(count, page);
     }
@@ -41,6 +42,7 @@ public class ShopController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateOrderAsync(Guid id, Order.StatusType status)
     {
+        if (id == default(Guid) || status == null) return new BadRequestResult();
         return await _service.UpdateOrderAsync(id, status);
     }
 }

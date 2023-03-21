@@ -4,6 +4,7 @@ using Core.Models;
 using Infrastructure.DTO;
 using Infrastructure.DTO.AccountTO;
 using Infrastructure.Services.AccountService;
+using Infrastructure.Services.RoleService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,21 +17,23 @@ namespace Web.Controllers;
 public class AccountController : Controller
 {
     private readonly IAccountService _service;
+    private readonly IRoleService _adminService;
     private readonly IConfiguration _configuration;
-    
-    public AccountController(IAccountService service, IConfiguration configuration)
+
+    public AccountController(IAccountService service, IRoleService adminService, IConfiguration configuration)
     {
         _service = service;
+        _adminService = adminService;
         _configuration = configuration;
     }
-    
-    
+
     [HttpPost]
     [Route("Sign-Up")]
     [AllowAnonymous]
     public async Task<IActionResult> RegisterUserAsync(CreateAccountTO model)
     {
-        return await _service.RegisterUserAsync(model);
+        if (model == null) return new BadRequestResult();
+        else return await _service.RegisterUserAsync(model);
     }
     
     [HttpPost]
@@ -38,11 +41,8 @@ public class AccountController : Controller
     [AllowAnonymous]
     public async Task<IActionResult> AuthorizeUserAsync(AuthorizeAccountTO model)
     {
-        JWTConfig config = new JWTConfig(
-            _configuration.GetValue<string>("Jwt:Issuer"),
-            _configuration.GetValue<string>("Jwt:Audience"),
-            _configuration.GetValue<string>("Jwt:Key"));
-        return await _service.AuthorizeUserAsync(model, config);
+        if (model == null) return new BadRequestResult();
+        return await _service.AuthorizeUserAsync(model, this.GetJWTConfig(_configuration));
     }
 
     [HttpPatch]
@@ -50,6 +50,16 @@ public class AccountController : Controller
     [Authorize]
     public async Task<IActionResult> AddToCartAsync(List<Guid> productsId)
     {
+        if (productsId == null || productsId.Count == 0) return new BadRequestResult();
         return await _service.AddToCartAsync(this.GetCurrentUserId(), productsId);
+    }
+    
+    [HttpPost]
+    [Route("add-role")]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> AddUserToRoleAsync(Guid userId, Guid roleId)
+    {
+        if (userId == default(Guid)) return new BadRequestResult();
+        return await _adminService.AddUserToRoleAsync(userId, roleId);
     }
 }
