@@ -1,7 +1,9 @@
+using Infrastructure.CustomResults;
 using Infrastructure.DTO.ProductTO;
 using Infrastructure.Services.ProductService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Web.Controllers;
 
@@ -17,44 +19,44 @@ public class ProductsController : Controller
     }
 
     [HttpGet]
-    [Route("/products")]
-    public async Task<IActionResult> GetProductsAsync(int count = 10, int page = 1)
+    [Route("/products/{page}")]
+    public async Task<ApiResult> GetProductsAsync(int count = 10, int page = 1)
     {
-        if (count <= 0 || page < 1) return new BadRequestResult();
+        if (count <= 0 || page < 1) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         else return await _service.GetAllProductsAsync(count, page);
     }
 
     [HttpGet]
-    [Route("/products/{categoriesId}")]
-    public async Task<IActionResult> GetProductsByCategoriesAsync([FromQuery]List<Guid> categoriesId, 
+    [Route("/products")]
+    public async Task<ApiResult> GetProductsByCategoriesAsync([FromQuery]List<Guid> categoriesId, 
         int count = 10, int page = 1)
     {
-        if (count <= 0 || page < 1) return new BadRequestResult();
+        if (count <= 0 || page < 1) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         else return await _service.GetAllProductsAsync(categoriesId, count, page);
     }
 
     [HttpGet]
     [Route("{id}")]
-    public async Task<IActionResult> GetProductAsync(Guid id)
+    public async Task<ApiResult> GetProductAsync(Guid id)
     {
-        if (id == default(Guid)) return new BadRequestResult();
+        if (id == default(Guid)) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         return await _service.GetProductAsync(id);
     }
     
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateProductAsync(CreateProductTO model)
+    public async Task<ApiResult> CreateProductAsync(CreateProductTO model)
     {
-        if (model == null) return new BadRequestResult();
+        if (model == null) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         return await _service.CreateProductAsync(model);
     }
 
     [HttpPatch]
     [Authorize(Roles = "Admin")]
     [Route("{id}")]
-    public async Task<IActionResult> UpdateProductAsync(Guid Id, UpdateProductTO model)
+    public async Task<ApiResult> UpdateProductAsync(Guid Id, UpdateProductTO model)
     {
-        if (Id == default(Guid)) return new BadRequestResult();
+        if (Id == default(Guid)) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         model.Id = Id;
         return await _service.UpdateProductAsync(model);
     }
@@ -62,9 +64,9 @@ public class ProductsController : Controller
     [HttpDelete]
     [Authorize(Roles = "Admin")]
     [Route("{id}")]
-    public async Task<IActionResult> DeleteProductAsync(DeleteProductTO id)
+    public async Task<ApiResult> DeleteProductAsync(DeleteProductTO id)
     {
-        if (id.Id == default(Guid)) return new BadRequestResult();
+        if (id.Id == default(Guid)) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         return await _service.DeleteProductAsync(id);
     }
     

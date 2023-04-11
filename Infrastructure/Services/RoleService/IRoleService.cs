@@ -1,11 +1,12 @@
+using Infrastructure.CustomResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Infrastructure.Services.RoleService;
 
 public interface IRoleService
 {
-    public Task<IActionResult> CreateRoleAsync(string name);
-    public Task<IActionResult> UpdateRoleAsync(Guid id, string name);
-    public Task<IActionResult> DeleteRoleAsync(Guid id);
-    public Task<IActionResult> AddUserToRoleAsync(Guid userId, Guid roleId);
+    public Task<ApiResult> CreateRoleAsync(string name);
+    public Task<ApiResult> UpdateRoleAsync(Guid id, string name);
+    public Task<ApiResult> DeleteRoleAsync(Guid id);
+    public Task<ApiResult> AddUserToRoleAsync(Guid userId, Guid roleId);
 }

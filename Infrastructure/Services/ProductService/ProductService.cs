@@ -11,6 +11,8 @@ using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
+using System.Net;
+using Infrastructure.CustomResults;
 
 namespace Infrastructure.Services.ProductService;
 
@@ -27,7 +29,7 @@ public class ProductService : IProductService
         _mapper = mapper;
     }
 
-    public async Task<IActionResult> CreateProductAsync(CreateProductTO model)
+    public async Task<ApiResult> CreateProductAsync(CreateProductTO model)
     {
         ValidationResult result = await (new CreateProductTOValidator()).ValidateAsync(model);
         if (result.IsValid)
@@ -44,19 +46,19 @@ public class ProductService : IProductService
             {
                 product = await _repository.CreatProductAsync(product);
             }
-            catch (NpgsqlException e)
+            catch (Exception e)
             {
-                return new ObjectResult(e);
+                return new ApiResult(e.Message, HttpStatusCode.InternalServerError);
             }
-            return new ObjectResult(product);
+            return new ApiResult("Product has been created!", HttpStatusCode.Created, product);
         }
         else
         {
-            return new ObjectResult(result.Errors);
+            return new ApiResult("Model has errors", HttpStatusCode.BadRequest, result.Errors);
         }
     }
 
-    public async Task<IActionResult> UpdateProductAsync(UpdateProductTO model)
+    public async Task<ApiResult> UpdateProductAsync(UpdateProductTO model)
     {
         ValidationResult result = await (new UpdateProductTOValidator()).ValidateAsync(model);
         if (result.IsValid)
@@ -71,26 +73,22 @@ public class ProductService : IProductService
                     model.NewData.PhotoUrl : product.ProductStats.PhotoUrl;
                 product.ProductStats.SomeData = (!model.NewData.SomeData.IsNullOrEmpty()) ? 
                     model.NewData.SomeData : product.ProductStats.SomeData;
-                /* Add if
-                product.Price = model.NewData.Price;
-                product.Categories = (await _categoryRepository.GetAllCategoriesAsync())
-                    .Where(c => model.NewData.CategoriesId.Contains(c.Id)).ToList();
-                */
+                
                 product = await _repository.UpdateProductAsync(product);
-                return new OkObjectResult(product);
+                return new ApiResult("Product(s) have(has) been updated.", (HttpStatusCode)204 ,product);
             }
-            catch (NpgsqlException e)
+            catch (Exception e)
             {
-                return new ObjectResult(e);
+                return new ApiResult(e.Message, (HttpStatusCode)500);
             }
         }
         else
         {
-            return new BadRequestObjectResult(result.Errors);
+            return new ApiResult("Model has errors", HttpStatusCode.BadRequest, result.Errors);
         }
     }
 
-    public async Task<IActionResult> DeleteProductAsync(DeleteProductTO model)
+    public async Task<ApiResult> DeleteProductAsync(DeleteProductTO model)
     {
         ValidationResult result = await (new DeleteProductToValidator()).ValidateAsync(model);
         if (result.IsValid)
@@ -99,37 +97,33 @@ public class ProductService : IProductService
             {
                 await _repository.DeleteProductAsync(model.Id);
             }
-            catch (NpgsqlException e)
+            catch (Exception e)
             {
-                return new ObjectResult(e);
+                return new ApiResult(e.Message, (HttpStatusCode)500);
             }
-            return new OkResult();
+            return new ApiResult("Product has been deleted.", (HttpStatusCode)204, model.Id);
         }
         else
         {
-            return new BadRequestObjectResult(result.Errors);
+            return new ApiResult("Model has errors", HttpStatusCode.BadRequest, result.Errors);
         }
     }
 
-    public async Task<IActionResult> GetAllProductsAsync(int count, int page)
+    public async Task<ApiResult> GetAllProductsAsync(int count, int page)
     {
         try
         {
             List<Product> products = (await _repository.GetAllProductsAsync())
                 .Include(p => p.Categories)
                 .Pagination(count, page).ToList();
-            return new OkObjectResult(products);
-            /*
-            return new OkObjectResult(new GetProductTO()
-                { Products = products });
-                */
+            return new ApiResult("Ok", HttpStatusCode.OK, products);
         }
-        catch (NpgsqlException e)
+        catch (Exception e)
         {
-            return new ObjectResult(e);
+            return new ApiResult(e.Message, (HttpStatusCode)500);
         }
     }
-    public async Task<IActionResult> GetAllProductsAsync(List<Guid> categoriesId, int count, int page)
+    public async Task<ApiResult> GetAllProductsAsync(List<Guid> categoriesId, int count, int page)
     {
         try
         {
@@ -138,7 +132,7 @@ public class ProductService : IProductService
                 .Include(c => c.Products)
                 .ThenInclude(p => p.ProductStats)
                 .ToListAsync();
-            if (categories.Count == 0) return new NotFoundResult();
+            if (categories.Count == 0) return new ApiResult("Categories not found", HttpStatusCode.NotFound);
 
             List<Product> products = new List<Product>();
             foreach (var category in categories)
@@ -153,25 +147,25 @@ public class ProductService : IProductService
             }
 
             products = products.Skip(page * count).Take(count).ToList();
-            if (products.Count != 0) return new OkObjectResult(products);
-            else return new NotFoundResult();
+            if (products.Count != 0) return new ApiResult("Ok", HttpStatusCode.Accepted, products);
+            else return new ApiResult("Products not found", HttpStatusCode.NotFound);
         }
-        catch (NpgsqlException e)
+        catch (Exception e)
         {
-            return new ObjectResult(e);
+            return new ApiResult(e.Message, (HttpStatusCode)500);
         }
     }
-    public async Task<IActionResult> GetProductAsync(Guid id)
+    public async Task<ApiResult> GetProductAsync(Guid id)
     {
         try
         {
             Product product = await _repository.GetProductAsync(id);
-            if (product != null) return new OkObjectResult(product);
-            else return new NotFoundResult();
+            if (product != null) return new ApiResult("Ok", HttpStatusCode.Accepted, product);
+            else return new ApiResult("Product not found", HttpStatusCode.NotFound);
         }
-        catch (NpgsqlException e)
+        catch (Exception e)
         {
-            return new ObjectResult(e);
+            return new ApiResult(e.Message, (HttpStatusCode)500);
         }
     }
 }

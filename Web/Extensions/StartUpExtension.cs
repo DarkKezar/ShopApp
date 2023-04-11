@@ -23,7 +23,7 @@ public static class StartUpExtension
         builder.Services.AddAutoMapper(typeof(ProductAutoMapper));
         
         builder.Services.AddTransient<IShopService, ShopService>();
-        builder.Services.AddTransient<IRoleService, IRoleService>();
+        builder.Services.AddTransient<IRoleService, RoleService>();
         builder.Services.AddTransient<IAccountService, AccountService>();
         builder.Services.AddTransient<IProductService, ProductService>();
         builder.Services.AddTransient<ICategoryService, CategoryService>();

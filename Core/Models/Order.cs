@@ -10,8 +10,8 @@ public class Order
                 };
     
     public Guid Id { get; set; }
-    public User User { get; set; }
-    public List<Product> Products { get; set; }
+    public User? User { get; set; }
+    public List<Product>? Products { get; set; }
     public StatusType Status { get; set; }
 
     

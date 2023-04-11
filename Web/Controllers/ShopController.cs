@@ -1,4 +1,6 @@
+using System.Net;
 using Core.Models;
+using Infrastructure.CustomResults;
 using Infrastructure.Services.ShopService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,29 +22,30 @@ public class ShopController : Controller
     
     [HttpGet]
     [Route("order/{id}")]
-    public async Task<IActionResult> GetOrderAsync(Guid id)
+    public async Task<ApiResult> GetOrderAsync(Guid id)
     {
-        if (id == default(Guid)) return new BadRequestResult();
+        if (id == default(Guid)) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         return await _service.GetOrderAsync(id);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetOrdersAsync(int count = 10, int page = 1)
+    public async Task<ApiResult> GetOrdersAsync(int count = 10, int page = 1)
     {
         return await _service.GetOrdersAsync(count, page);
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateOrderAsync()
+    public async Task<ApiResult> CreateOrderAsync()
     {
         return await _service.CreateOrderAsync(this.GetCurrentUserId());
     }
 
     [HttpPatch]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateOrderAsync(Guid id, Order.StatusType status)
+    public async Task<ApiResult> UpdateOrderAsync(Guid id, Order.StatusType status)
     {
-        if (id == default(Guid) || status == null) return new BadRequestResult();
+        if (id == default(Guid) || status == default(Order.StatusType))
+            return new ApiResult("Input error", HttpStatusCode.BadRequest);
         return await _service.UpdateOrderAsync(id, status);
     }
 }

@@ -1,3 +1,4 @@
+using Infrastructure.CustomResults;
 using Infrastructure.DTO.ProductTO;
 using Microsoft.AspNetCore.Mvc;
 
@@ -5,10 +6,10 @@ namespace Infrastructure.Services.ProductService;
 
 public interface IProductService
 {
-    public Task<IActionResult> CreateProductAsync(CreateProductTO model);
-    public Task<IActionResult> UpdateProductAsync(UpdateProductTO model);
-    public Task<IActionResult> DeleteProductAsync(DeleteProductTO model);
-    public Task<IActionResult> GetAllProductsAsync(int count, int page);
-    public Task<IActionResult> GetAllProductsAsync(List<Guid> categoriesId, int count, int page);
-    public Task<IActionResult> GetProductAsync(Guid id);
+    public Task<ApiResult> CreateProductAsync(CreateProductTO model);
+    public Task<ApiResult> UpdateProductAsync(UpdateProductTO model);
+    public Task<ApiResult> DeleteProductAsync(DeleteProductTO model);
+    public Task<ApiResult> GetAllProductsAsync(int count, int page);
+    public Task<ApiResult> GetAllProductsAsync(List<Guid> categoriesId, int count, int page);
+    public Task<ApiResult> GetProductAsync(Guid id);
 }

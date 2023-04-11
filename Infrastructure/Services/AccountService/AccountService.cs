@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
@@ -7,6 +8,7 @@ using Core.Repositories.ProductRepository;
 using Core.Repositories.RoleRepository;
 using Core.Repositories.UserRepository;
 using FluentValidation.Results;
+using Infrastructure.CustomResults;
 using Infrastructure.DTO;
 using Infrastructure.DTO.AccountTO;
 using Infrastructure.Validators.AccountValidators;
@@ -32,7 +34,7 @@ public class AccountService : IAccountService
         _mapper = mapper;
     }
 
-    public async Task<IActionResult> RegisterUserAsync(CreateAccountTO model)
+    public async Task<ApiResult> RegisterUserAsync(CreateAccountTO model)
     {
         ValidationResult result = await (new CreateAccountTOValidator()).ValidateAsync(model);
         if (result.IsValid)
@@ -43,19 +45,19 @@ public class AccountService : IAccountService
             {
                 user = await _repository.CreateUserAsync(user, model.Password);
             }
-            catch (NpgsqlException e)
+            catch (Exception e)
             {
-                return new ObjectResult(e);
+                return new ApiResult(e.Message, (HttpStatusCode)500);
             }
-            return new ObjectResult(user);
+            return new ApiResult("Ok", HttpStatusCode.Created, user);
         }
         else
         {
-            return new ObjectResult(result.Errors);
+            return new ApiResult("Model has errors", HttpStatusCode.BadRequest, result.Errors);
         }
     }
 
-    public async Task<IActionResult> AuthorizeUserAsync(AuthorizeAccountTO model, JWTConfig config)
+    public async Task<ApiResult> AuthorizeUserAsync(AuthorizeAccountTO model, JWTConfig config)
     {
         ValidationResult result = await (new AuthorizeAccountTOValidator()).ValidateAsync(model);
         if (result.IsValid)
@@ -76,20 +78,20 @@ public class AccountService : IAccountService
                         new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config.key)), 
                         SecurityAlgorithms.HmacSha256));
                 
-                return new OkObjectResult(new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken));
+                return new ApiResult("Ok", HttpStatusCode.OK, new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken));
             }
             else
             {
-                return new ObjectResult("Error: incorrect login or password");
+                return new ApiResult("Incorrect login or password", HttpStatusCode.BadRequest);
             }
         }
         else
         {
-            return new BadRequestObjectResult(result.Errors);
+            return new ApiResult("Data has errors", HttpStatusCode.BadRequest, result.Errors);
         }
     }
 
-    public async Task<IActionResult> AddToCartAsync(Guid userId, List<Guid> productsId)
+    public async Task<ApiResult> AddToCartAsync(Guid userId, List<Guid> productsId)
     {
         try
         {
@@ -99,11 +101,11 @@ public class AccountService : IAccountService
             user.ShoppingCart.Products.AddRange(products);
             user = await _repository.UpdateUserAsync(user);
 
-            return new OkObjectResult(user);
+            return new ApiResult("Products have been added to cart", (HttpStatusCode)204, user);
         }
-        catch (NpgsqlException e)
+        catch (Exception e)
         {
-            return new ObjectResult(e.Message);
+            return new ApiResult(e.Message, (HttpStatusCode)500);
         }
     }
 }

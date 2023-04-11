@@ -1,4 +1,3 @@
-using System.Data.Entity;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using DbContext = Microsoft.EntityFrameworkCore.DbContext;
@@ -7,13 +6,13 @@ namespace Core.Context;
 
 public class ShopContext : DbContext
 {
-    public Microsoft.EntityFrameworkCore.DbSet<User> Users { get; set; }
-    public Microsoft.EntityFrameworkCore.DbSet<Role> Roles { get; set; }
-    public Microsoft.EntityFrameworkCore.DbSet<Category> Categories { get; set; }
-    public Microsoft.EntityFrameworkCore.DbSet<Product> Products { get; set; }
-    public Microsoft.EntityFrameworkCore.DbSet<ProductStats> ProductStats { get; set; }
-    public Microsoft.EntityFrameworkCore.DbSet<ShoppingCart> ShoppingCarts { get; set; }
-    public Microsoft.EntityFrameworkCore.DbSet<Order> Orders { get; set; }
+    public DbSet<User>? Users { get; set; }
+    public DbSet<Role>? Roles { get; set; }
+    public DbSet<Category>? Categories { get; set; }
+    public DbSet<Product>? Products { get; set; }
+    public DbSet<ProductStats>? ProductStats { get; set; }
+    public DbSet<ShoppingCart>? ShoppingCarts { get; set; }
+    public DbSet<Order>? Orders { get; set; }
     
     public ShopContext()
     { }

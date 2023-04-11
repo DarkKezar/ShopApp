@@ -1,3 +1,5 @@
+using System.Net;
+using Infrastructure.CustomResults;
 using Infrastructure.Services.CategoryService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,32 +19,34 @@ public class CategoriesController : Controller
 
     [HttpGet]
     [Route("/categories")]
-    public async Task<IActionResult> GetCategoriesAsync()
+    public async Task<ApiResult> GetCategoriesAsync()
     {
         return await _service.GetAllCategoryAsync();
     }
     
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateCategoryAsync(string name)
+    public async Task<ApiResult> CreateCategoryAsync(string name)
     {
-        if (name == null) return new BadRequestResult();
+        if (name == null) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         return await _service.CreateCategoryAsync(name);
     }
 
     [HttpPatch]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateCategoryAsync(Guid id, string name)
+    [Route("{id}")]
+    public async Task<ApiResult> UpdateCategoryAsync(Guid id, string name)
     {
-        if (id == default(Guid)) return new BadRequestResult();
+        if (id == default(Guid)) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         return await _service.UpdateCategoryAsync(id, name);
     }
 
     [HttpDelete]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteCategoryAsync(Guid id)
+    [Route("{id}")]
+    public async Task<ApiResult> DeleteCategoryAsync(Guid id)
     {
-        if (id == default(Guid)) return new BadRequestResult();
+        if (id == default(Guid)) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         return await _service.DeleteCategoryAsync(id);
     }
 }

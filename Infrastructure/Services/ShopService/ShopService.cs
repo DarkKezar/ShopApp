@@ -1,7 +1,9 @@
+using System.Net;
 using Core.Models;
 using Core.Repositories.OrderRepository;
 using Core.Repositories.ProductRepository;
 using Core.Repositories.UserRepository;
+using Infrastructure.CustomResults;
 using Infrastructure.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,32 +25,34 @@ public class ShopService : IShopService
         _productRepository = productRepository;
     }
     
-    public async Task<IActionResult> GetOrderAsync(Guid id)
+    public async Task<ApiResult> GetOrderAsync(Guid id)
     {
         try
         {
-            return new OkObjectResult(await _repository.GetOrderAsync(id));
+            Order order = await _repository.GetOrderAsync(id);
+            return new ApiResult("Ok", HttpStatusCode.OK, order);
         }
         catch (Exception e)
         {
-            return new NotFoundObjectResult(e.Message);
+            return new ApiResult(e.Message, (HttpStatusCode)500);
         }
     }
 
-    public async Task<IActionResult> GetOrdersAsync(int count, int page)
+    public async Task<ApiResult> GetOrdersAsync(int count, int page)
     {
         try
         {
-            return new OkObjectResult(await (await _repository.GetAllOrdersAsync()).
-                Pagination(count, page).ToListAsync());
+            List<Order> orders = await (await _repository.GetAllOrdersAsync()).
+                Pagination(count, page).ToListAsync();
+            return new ApiResult("Ok", HttpStatusCode.OK, orders);
         }
         catch (Exception e)
         {
-            return new NotFoundObjectResult(e.Message);
+            return new ApiResult(e.Message, (HttpStatusCode)500);
         }
     }
 
-    public async Task<IActionResult> CreateOrderAsync(Guid userId)
+    public async Task<ApiResult> CreateOrderAsync(Guid userId)
     {
         try
         {
@@ -57,15 +61,15 @@ public class ShopService : IShopService
             user.ShoppingCart.Products.Clear();
             user.Orders.Add(order);
             await _userRepository.UpdateUserAsync(user);
-            return new OkObjectResult(order);
+            return new ApiResult("Order has been created", HttpStatusCode.Created, order);
         }
         catch (Exception e)
         {
-            return new ObjectResult(e.Message);
+            return new ApiResult(e.Message, (HttpStatusCode)500);
         }
     }
 
-    public async Task<IActionResult> UpdateOrderAsync(Guid orderId, Order.StatusType status)
+    public async Task<ApiResult> UpdateOrderAsync(Guid orderId, Order.StatusType status)
     {
         try
         {
@@ -73,11 +77,11 @@ public class ShopService : IShopService
             order.Status = status;
             order = await _repository.UpdateOrderAsync(order);
 
-            return new OkObjectResult(order);
+            return new ApiResult("Order has been updated", (HttpStatusCode)204, order);
         }
         catch (Exception e)
         {
-            return new ObjectResult(e.Message);
+            return new ApiResult(e.Message, (HttpStatusCode)500);
         }
     }
     

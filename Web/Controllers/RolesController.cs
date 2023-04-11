@@ -1,3 +1,5 @@
+using System.Net;
+using Infrastructure.CustomResults;
 using Infrastructure.Services.RoleService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,22 +19,24 @@ public class RolesController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateRoleAsync(string name)
+    public async Task<ApiResult> CreateRoleAsync(string name)
     {
         return await _service.CreateRoleAsync(name);
     }
 
     [HttpPatch]
-    public async Task<IActionResult> UpdateRoleAsync(Guid id, string name)
+    [Route("{id}")]
+    public async Task<ApiResult> UpdateRoleAsync(Guid id, string name)
     {
-        if (id == default(Guid)) return new BadRequestResult();
+        if (id == default(Guid)) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         return await _service.UpdateRoleAsync(id, name);
     }
 
     [HttpDelete]
-    public async Task<IActionResult> DeleteRoleAsync(Guid id)
+    [Route("{id}")]
+    public async Task<ApiResult> DeleteRoleAsync(Guid id)
     {
-        if (id == default(Guid)) return new BadRequestResult();
+        if (id == default(Guid)) return new ApiResult("Input error", HttpStatusCode.BadRequest);
         return await _service.DeleteRoleAsync(id);
     }
     
