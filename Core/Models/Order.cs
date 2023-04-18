@@ -10,13 +10,13 @@ public class Order
                 };
     
     public Guid Id { get; set; }
-    public User User { get; set; }
-    public IEnumerable<Product> Products { get; set; }
+    public User? User { get; set; }
+    public List<Product>? Products { get; set; }
     public StatusType Status { get; set; }
 
     
     public Order(){}
-    public Order(User user, IEnumerable<Product> products)
+    public Order(User user, List<Product> products)
     {
         User = user;
         Products = products;

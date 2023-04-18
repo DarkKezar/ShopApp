@@ -13,14 +13,15 @@ public class RoleRepository : IRoleRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Role>> GetAllRolesAsync(int count, int page)
+    public async Task<IQueryable<Role>> GetAllRolesAsync()
     {
-        return _context.Roles.Skip(page * count).Take(count);
+        return _context.Roles;
     }
 
     public async Task<Role> GetRoleAsync(Guid id)
     {
-        return await _context.Roles.SingleOrDefaultAsync(r => r.Id == id);
+        return await _context.Roles.Include(r => r.Users)
+            .SingleOrDefaultAsync(r => r.Id == id);
     }
 
     public async Task<Role> CreateRoleAsync(Role role)

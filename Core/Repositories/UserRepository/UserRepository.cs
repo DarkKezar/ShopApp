@@ -21,19 +21,26 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<User>> GetAllUsersAsync(int count, int page)
+    public async Task<IQueryable<User>> GetAllUsersAsync()
     {
-        return _context.Users.Skip(count * page).Take(count);
+        return _context.Users;
     }
 
     public async Task<User> GetUserAsync(Guid id)
     {
-        return await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
+        return await _context.Users
+            .Include(u => u.Roles)
+            .Include(u => u.Orders)
+            .Include(u => u.ShoppingCart)
+            .SingleOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<User> CreateUserAsync(User user, string password)
     {
-        throw new NotImplementedException();
+        user.PasswordHash = PasswordHashGenerator(password);
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
+        return user;
     }
 
     public async Task<User> UpdateUserAsync(User user)
@@ -41,6 +48,12 @@ public class UserRepository : IUserRepository
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
         return user;
+    }
+
+    public async Task<User> UpdatePasswordAsync(User user, string password)
+    {
+        user.PasswordHash = PasswordHashGenerator(password);
+        return await this.UpdateUserAsync(user);
     }
 
     public async Task<ShoppingCart> UpdateShoppingCartAsync(ShoppingCart shoppingCart)
@@ -57,15 +70,17 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> AuthorizateUserAsync(string login, string password)
+    public async Task<User> AuthorizeUserAsync(string login, string password)
     {
         /*
          * Here I only check login and password, that's why I return boolean
          * JWT I will generate in IUserService (or IAccountService)
          */
         
-        User user = await _context.Users.SingleOrDefaultAsync(u => u.Login.Equals(login));
-        if (user.IsDeleted) return false;
-        else return user.PasswordHash.Equals(PasswordHashGenerator(password));
+        User user = await _context.Users.Include(u => u.Roles)
+            .SingleOrDefaultAsync(u => u.Login.Equals(login));
+        if (user.IsDeleted) return null;
+        else if (user.PasswordHash.Equals(PasswordHashGenerator(password))) return user;
+        else return null;
     }
 }

@@ -13,12 +13,12 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Product>> GetAllProductsAsync(int count, int page)
+    public async Task<IQueryable<Product>> GetAllProductsAsync()
     {
-        return _context.Products.Skip(count * page).Take(count);
+        return _context.Products;
     }
 
-    public async Task<Product> GeProductAsync(Guid id)
+    public async Task<Product> GetProductAsync(Guid id)
     {
         return await _context.Products.SingleOrDefaultAsync(p => p.Id == id);
     }
@@ -39,6 +39,14 @@ public class ProductRepository : IProductRepository
 
     public async Task DeleteProductAsync(Product product)
     {
+        _context.ProductStats.Remove(product.ProductStats);
+        _context.Products.Remove(product);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteProductAsync(Guid id)
+    {
+        Product product = await this.GetProductAsync(id);
         _context.ProductStats.Remove(product.ProductStats);
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();

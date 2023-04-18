@@ -13,12 +13,12 @@ public class OrderRepository : IOrderRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Order>> GetAllOrdersAsync(int count, int page)
+    public async Task<IQueryable<Order>> GetAllOrdersAsync()
     {
-        return _context.Orders.Skip(count * page).Take(count);
+        return _context.Orders;
     }
 
-    public async Task<IEnumerable<Order>> GetAllUserOrdersAsync(Guid userId)
+    public async Task<IQueryable<Order>> GetAllUserOrdersAsync(Guid userId)
     {
         return _context.Orders.Where(o => o.User.Id == userId);
     }

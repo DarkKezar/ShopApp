@@ -1,18 +1,32 @@
+using System.Text;
+using System.Text.Json.Serialization;
 using Core.Context;
+using Core.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Server.IIS;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Web.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddDbContext<ShopContext>
         (options => options.UseNpgsql(builder.Configuration["ConnectionStrings:DefaultConnection"]));
-
-// Add services to the container.
+builder.DependencyInjection();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+//!!
+builder.Services.AddControllers().AddJsonOptions(options => 
+{ 
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.WriteIndented = true;
+});
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.AddSwaggerBearer();
+builder.AddJWTAuth();
+
 
 var app = builder.Build();
 
@@ -25,6 +39,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -13,9 +13,9 @@ public class CategoryRepository : ICategoryRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Category>> GetAllCategoriesAsync(int count, int page)
+    public async Task<IQueryable<Category>> GetAllCategoriesAsync()
     {
-        return _context.Categories.Skip(count * page).Take(count);
+        return _context.Categories;
     }
 
     public async Task<Category> GetCategoryAsync(Guid id)
