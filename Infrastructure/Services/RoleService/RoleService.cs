@@ -40,7 +40,7 @@ public class RoleService : IRoleService
             Role role = await _repository.GetRoleAsync(id);
             role.Name = name;
             role = await _repository.UpdateRoleAsync(role);
-            return new ApiResult("Role has been updated", (HttpStatusCode)204, id);
+            return new ApiResult("Role has been updated", (HttpStatusCode)204, role);
         }
         catch (Exception e)
         {
