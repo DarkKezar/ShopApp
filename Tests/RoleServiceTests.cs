@@ -2,74 +2,20 @@
 using Infrastructure.Services.RoleService;
 using Infrastructure.CustomResults;
 using Core.Models;
-using Core.Repositories.RoleRepository;
-using Core.Repositories.UserRepository;
-using Moq;
 using System.Net;
+using Tests.Moqs.RepositoriesMoqs;
 
 namespace Tests;
 
 public class RoleServiceTests
 {
-    private List<Role> roles = new List<Role>(){
-        new Role() { Id = new Guid("0cd70aac-7aa1-4f13-98de-3717e22dca1e"), Name = "Admin" },
-        new Role() { Id = new Guid("92fa11b5-5cff-4cfd-ae99-fe975aaf2452"), Name = "Customer" }
-    };
-
-    private List<User> users = new List<User>(){
-        new User("login1", "pass") { 
-            Id = new Guid("1cd70aac-7aa1-4f13-98de-3717e22dca2e"), 
-            Name = "User 1", 
-            Roles = new List<Role>()
-        },
-    };
-
-    private Mock<IRoleRepository> GetRoleRepositoryMock(){
-        var mock = new Mock<IRoleRepository>();
-
-        mock.Setup(r => r.GetAllRolesAsync())
-            .Returns(Task.FromResult(roles.AsQueryable()));
-        mock.Setup(r => r.CreateRoleAsync(It.IsAny<Role>()))
-            .Returns<Role>((Role) => {
-                if(roles.Where(r => r.Name.Equals(Role.Name)).Count() != 0)
-                    throw new Exception();
-                else return Task.FromResult(Role);
-            });     
-        mock.Setup(r => r.GetRoleAsync(It.IsAny<Guid>()))
-            .Returns<Guid>((Id) => {
-                if(roles.Where(r => r.Id == Id).Count() == 0)
-                    throw new Exception();
-                else return Task.FromResult(roles.SingleOrDefault(r => r.Id == Id));
-            });
-        mock.Setup(r => r.UpdateRoleAsync(It.IsAny<Role>()))
-            .Returns<Role>(Role => Task.FromResult(Role));        
-        mock.Setup(r => r.DeleteRoleAsync(It.IsAny<Role>()))
-            .Returns<Role>((Role) => {
-                if(!roles.Contains(Role))
-                    throw new Exception();
-                else return Task.CompletedTask;
-            });
-                    
-        return mock;
-    }
-    private Mock<IUserRepository> GetUserRepositoryMock(){
-        var mock = new Mock<IUserRepository>();
-
-        mock.Setup(r => r.GetAllUsersAsync()).Returns(Task.FromResult(users.AsQueryable()));
-        mock.Setup(r => r.GetUserAsync(It.IsAny<Guid>())).Returns<Guid>((Id) => {
-                return Task.FromResult(users.SingleOrDefault(u => u.Id == Id));
-            });
-        mock.Setup(r => r.UpdateUserAsync(It.IsAny<User>())).Returns<User>(u => Task.FromResult(u));    
-
-        return mock;
-    }
-
+       
     [Fact]
     public async void CreateTest1(){
         // Arrange
         var service = new RoleService(
-            GetRoleRepositoryMock().Object, 
-            GetUserRepositoryMock().Object);
+            RoleRepositoryMoq.GetRoleRepositoryMoq().Object, 
+            UserRepositoryMoq.GetUserRepositoryMoq().Object);
         string RoleName = "TestRole 1";    
 
         // Act
@@ -83,8 +29,8 @@ public class RoleServiceTests
     public async void CreateTest2(){
         // Arrange
         var service = new RoleService(
-            GetRoleRepositoryMock().Object, 
-            GetUserRepositoryMock().Object);
+            RoleRepositoryMoq.GetRoleRepositoryMoq().Object, 
+            UserRepositoryMoq.GetUserRepositoryMoq().Object);
         string RoleName = "Admin";    
 
         // Act
@@ -98,8 +44,8 @@ public class RoleServiceTests
     public async void UpdateTest1(){
         // Arrange
         var service = new RoleService(
-            GetRoleRepositoryMock().Object, 
-            GetUserRepositoryMock().Object);
+            RoleRepositoryMoq.GetRoleRepositoryMoq().Object, 
+            UserRepositoryMoq.GetUserRepositoryMoq().Object);
 
         // Act
         ApiResult result = await service.UpdateRoleAsync(new Guid("0cd70aac-7aa1-4f13-98de-3717e22dca1e"), "Admin1");
@@ -117,8 +63,8 @@ public class RoleServiceTests
     public async void UpdateTest2(){
         // Arrange
         var service = new RoleService(
-            GetRoleRepositoryMock().Object, 
-            GetUserRepositoryMock().Object);
+            RoleRepositoryMoq.GetRoleRepositoryMoq().Object, 
+            UserRepositoryMoq.GetUserRepositoryMoq().Object);
 
         // Act
         ApiResult result = await service.UpdateRoleAsync(new Guid("1cd70aac-7aa1-4f13-98de-3717e22dca1e"), "Admin1");
@@ -131,8 +77,8 @@ public class RoleServiceTests
     public async void DeleteTest1(){
         // Arrange
         var service = new RoleService(
-            GetRoleRepositoryMock().Object, 
-            GetUserRepositoryMock().Object);
+            RoleRepositoryMoq.GetRoleRepositoryMoq().Object, 
+            UserRepositoryMoq.GetUserRepositoryMoq().Object);
 
         // Act
         ApiResult result = await service.DeleteRoleAsync(new Guid("92fa11b5-5cff-4cfd-ae99-fe975aaf2452"));
@@ -145,8 +91,8 @@ public class RoleServiceTests
     public async void DeleteTest2(){
         // Arrange
         var service = new RoleService(
-            GetRoleRepositoryMock().Object, 
-            GetUserRepositoryMock().Object);
+            RoleRepositoryMoq.GetRoleRepositoryMoq().Object, 
+            UserRepositoryMoq.GetUserRepositoryMoq().Object);
 
         // Act
         ApiResult result = await service.DeleteRoleAsync(new Guid("0ad70aac-7aa1-4f13-98de-3717e22dca1e"));
@@ -159,8 +105,8 @@ public class RoleServiceTests
     public async void AddUserToRoleTest1(){
         // Arrange
         var service = new RoleService(
-            GetRoleRepositoryMock().Object, 
-            GetUserRepositoryMock().Object);
+            RoleRepositoryMoq.GetRoleRepositoryMoq().Object, 
+            UserRepositoryMoq.GetUserRepositoryMoq().Object);
 
         // Act
         ApiResult result = await service.AddUserToRoleAsync(
@@ -170,15 +116,15 @@ public class RoleServiceTests
         User user = (User)(result.ObjectResult);
 
         // Assert
-        Assert.Equal(true, user.Roles.Contains(roles[0]));
+        Assert.Equal(true, user.Roles.Contains(RoleRepositoryMoq.roles[0]));
     }
     
     [Fact]
     public async void AddUserToRoleTest2(){
         // Arrange
         var service = new RoleService(
-            GetRoleRepositoryMock().Object, 
-            GetUserRepositoryMock().Object);
+            RoleRepositoryMoq.GetRoleRepositoryMoq().Object, 
+            UserRepositoryMoq.GetUserRepositoryMoq().Object);
 
         // Act
         ApiResult result = await service.AddUserToRoleAsync(
@@ -194,8 +140,8 @@ public class RoleServiceTests
     public async void AddUserToRoleTest3(){
         // Arrange
         var service = new RoleService(
-            GetRoleRepositoryMock().Object, 
-            GetUserRepositoryMock().Object);
+            RoleRepositoryMoq.GetRoleRepositoryMoq().Object, 
+            UserRepositoryMoq.GetUserRepositoryMoq().Object);
 
         // Act
         ApiResult result = await service.AddUserToRoleAsync(
@@ -211,8 +157,8 @@ public class RoleServiceTests
     public async void AddUserToRoleTest4(){
         // Arrange
         var service = new RoleService(
-            GetRoleRepositoryMock().Object, 
-            GetUserRepositoryMock().Object);
+            RoleRepositoryMoq.GetRoleRepositoryMoq().Object, 
+            UserRepositoryMoq.GetUserRepositoryMoq().Object);
 
         // Act
         ApiResult result = await service.AddUserToRoleAsync(
