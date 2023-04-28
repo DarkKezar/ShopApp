@@ -1,14 +1,13 @@
-using System.Text;
 using System.Text.Json.Serialization;
 using Core.Context;
-using Core.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Server.IIS;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using Web.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+LoggingConfig.ConfigureLogging();
+builder.Host.UseSerilog();
 
 builder.Services
     .AddDbContext<ShopContext>
@@ -24,11 +23,13 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
+
 builder.AddSwaggerBearer();
 builder.AddJWTAuth();
 
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -46,3 +47,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
