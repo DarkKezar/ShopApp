@@ -20,6 +20,7 @@ public class ProductsController : Controller
 
     [HttpGet]
     [Route("/products/{page}")]
+    [ResponseCache(CacheProfileName = "Default30")]
     public async Task<ApiResult> GetProductsAsync(int count = 10, int page = 1)
     {
         if (count <= 0 || page < 1) return new ApiResult("Input error", HttpStatusCode.BadRequest);

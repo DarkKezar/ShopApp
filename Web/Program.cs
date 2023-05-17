@@ -1,14 +1,14 @@
-using System.Text;
 using System.Text.Json.Serialization;
 using Core.Context;
-using Core.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Server.IIS;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using Web.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+LoggingConfig.ConfigureLogging();
+builder.Host.UseSerilog();
 
 builder.Services
     .AddDbContext<ShopContext>
@@ -24,11 +24,25 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
+
+//cache
+builder.Services.AddResponseCaching();
+builder.Services.AddControllers(options =>
+{
+    options.CacheProfiles.Add("Default30",
+        new CacheProfile()
+        {
+            Duration = 30 * 60, //30 minuts
+            Location= ResponseCacheLocation.Any
+        });
+});
+
 builder.AddSwaggerBearer();
 builder.AddJWTAuth();
 
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -39,10 +53,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
+app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
