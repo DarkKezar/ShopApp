@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Core.Context;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Web.Extensions;
@@ -24,6 +25,18 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 
+//cache
+builder.Services.AddResponseCaching();
+builder.Services.AddControllers(options =>
+{
+    options.CacheProfiles.Add("Default30",
+        new CacheProfile()
+        {
+            Duration = 30 * 60, //30 minuts
+            Location= ResponseCacheLocation.Any
+        });
+});
+
 builder.AddSwaggerBearer();
 builder.AddJWTAuth();
 
@@ -40,7 +53,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
+app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
 
